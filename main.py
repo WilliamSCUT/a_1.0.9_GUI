@@ -11,11 +11,11 @@ import random
 import numpy.linalg as LA
 import math
 from creature import Creature
-from predator import Predator
-from prey import Prey
+from Tiger import Tiger
+from Cow import Cow
 from food import Food
 from world import World 
-from prey_s import Prey_s
+from Sheep import Sheep
 
 
 
@@ -56,16 +56,16 @@ if __name__ == '__main__':
 
 # 以上是开始界面，用来输入参数
 
-def plot_stats(day_num,predator_num,prey_num,prey_s_num,food_num):
+def plot_stats(day_num,Tiger_num,Cow_num,Sheep_num,food_num):
   '''
   Function to add the plots of the number of creatures
   '''
 
   global fig,ax1,ax2
   plt.cla()
-  plt.plot(day_num,predator_num,"r",label = 'predator')
-  plt.plot(day_num,prey_num,"b",label = 'prey')
-  plt.plot(day_num,prey_s_num,"b",label = 'prey_s')
+  plt.plot(day_num,Tiger_num,"r",label = 'Tiger')
+  plt.plot(day_num,Cow_num,"b",label = 'Cow')
+  plt.plot(day_num,Sheep_num,"b",label = 'Sheep')
   plt.plot(day_num,food_num,"g",label = 'food')
   plt.xlabel("Day Number")
   plt.ylabel("Creatures(foods) Number")
@@ -91,17 +91,18 @@ display.set_caption("Evolution")
 gameDisplay = display.set_mode((600,600))
 display.set_caption("Evolution")
 
-prey_stats = []
-predator_stats = []
+Sheeptats = []
+Tiger_stats = []
 # number_of_creatures =  int(gval.get_value("Creature Num"))
-# number_of_prey = 20*number_of_creatures
+# number_of_Cow
+# = 20*number_of_creatures
 # number_of_days = int(gval.get_value("Day Num"))
-# number_of_predators = number_of_creatures
+# number_of_Tigers = number_of_creatures
 
 number_of_food = 1000
-number_of_predators = 10
-number_of_prey = 100
-number_of_prey_s = 100
+number_of_Tigers = 10
+number_of_Cow = 100
+number_of_Sheep = 100
 number_of_forests = 7
 # number_of_food = int(gval.get_value("Food Num"))
 number_of_steps = 300
@@ -110,16 +111,17 @@ forest_epicenters = [-1]*number_of_forests
 number_of_days = 100
 #这个只执行一次
 world = World()
-world.initialize_creatures(number_of_prey,number_of_prey_s,number_of_predators)
+world.initialize_creatures(number_of_Cow,number_of_Sheep,number_of_Tigers)
 
-predator_num = []
-prey_num = []
-prey_s_num = []
+Tiger_num = []
+Cow_num = []
+Sheep_num = []
 food_num = []
 day_num = []
 
 for day in range(0,number_of_days):
-#prey_stats.append(world.num_prey)
+#Sheeptats.append(world.num_Cow
+#)
     steps_taken = 0
     forest_epicenters = world.generate_food(number_of_food,len(forest_epicenters),forest_epicenters)
     while steps_taken < number_of_steps:
@@ -130,12 +132,12 @@ for day in range(0,number_of_days):
         world.print_creatures(gameDisplay)
         display.update()
         clock.tick(60)
-    predator_num.append(len(world.predators_d))
-    prey_num.append(len(world.prey_d))
-    prey_s_num.append(len(world.prey_s_d))
+    Tiger_num.append(len(world.tiger_d))
+    Cow_num.append(len(world.cow_d))
+    Sheep_num.append(len(world.sheep_d))
     food_num.append(len(world.food_d))
     day_num.append(day+1)
-    plot_stats(day_num,predator_num,prey_num,prey_s_num,food_num)
+    plot_stats(day_num,Tiger_num,Cow_num,Sheep_num,food_num)
     world.reset_creatures()
     world.clear_food()
     

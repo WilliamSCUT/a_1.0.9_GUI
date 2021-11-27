@@ -7,13 +7,13 @@ import numpy.linalg as LA
 import math
 from creature import Creature
 
-class Prey(Creature):
-  def __init__(self,starting_pos=[0,0],speed=np.random.randint(10,15),size=np.random.randint(3,7),life = np.random.randint(4,6)):
-    super(Prey,self).__init__(starting_pos,speed,size,life)
+class Cow(Creature):
+  def __init__(self,starting_pos=[0,0],speed=np.random.randint(10,15),size=np.random.randint(3,7),life = np.random.randint(3,5)):
+    super(Cow,self).__init__(starting_pos,speed,size,life)
     self.color = (255,215,0)      #两种不同的颜色
   '''
   def eat(self):
-    # print("Prey has eaten")
+    # print("Cow has eaten")
     if (self.fertility<100):
       if (self.content==False):
         self.content=True

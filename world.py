@@ -8,9 +8,9 @@ import random
 import numpy.linalg as LA
 import math
 from creature import Creature
-from predator import Predator
-from prey import Prey
-from prey_s import Prey_s
+from Tiger import Tiger
+from Cow import Cow
+from Sheep import Sheep
 from food import Food
 
 class World():
@@ -25,17 +25,23 @@ class World():
     self.numBlocksy=50
     self.blocksize=np.array([self.x_range//self.numBlocksx,self.y_range//self.numBlocksy])
     
-    self.predators_d = {}
-    self.prey_d = {}
+    self.tiger_d = {}
+    self.cow_d = {}
     self.dist = 999
     self.target_food = Food([0,0])
     self.target_food_pos = []
-    self.target_prey = Prey([0,0])
-    self.target_prey_pos = []
+
     #1.0.9
-    self.prey_s_d = {}
-    self.target_prey_s = Prey_s([0,0])
-    self.target_prey_s_pos = []
+    self.sheep_d = {}
+    '''
+    self.target_sheep = Sheep([0,0])
+    self.target_sheep_pos = []
+    self.target_cow = Cow([0,0])
+    self.target_cow_pos = []
+    '''
+    self.target_prey = Cow([0,0])
+    self.target_prey_pos = []
+    #1.0.3版本更新
     #1.0.3版本更新
     #方便GUI画图
     self.food_d = {}
@@ -46,50 +52,50 @@ class World():
     #这是我们的三种字典创建，后面可以考虑搞个东西把那么多个字典存起来
     for i in range(51):
         for j in range(51):
-            name = 'self.prey_'+str(i)+'_'+str(j)
+            name = 'self.cow_'+str(i)+'_'+str(j)
             exec(name+'={}')
-            name = 'self.prey_s_'+str(i)+'_'+str(j)
+            name = 'self.sheep_'+str(i)+'_'+str(j)
             exec(name+'={}')
-            name_p= 'self.predator_'+str(i)+'_'+str(j)
+            name_p= 'self.tiger_'+str(i)+'_'+str(j)
             exec(name_p+'={}')
             name_f= 'self.food_'+str(i)+'_'+str(j)
             exec(name_f+'={}')
 
 
 
-  def initialize_creatures(self, number_of_prey,number_of_prey_s,number_of_predator):
-    for i in range(0, number_of_prey):
-      new_prey = Prey([random.uniform(0,self.x_range),random.uniform(0,self.y_range)])    
-      pos = new_prey.getPos()
+  def initialize_creatures(self, number_of_cow,number_of_sheep,number_of_tiger):
+    for i in range(0, number_of_cow):
+      new_cow = Cow([random.uniform(0,self.x_range),random.uniform(0,self.y_range)])    
+      pos = new_cow.getPos()
       #这是目前我们的存储容器，字典
       #1.0.2更新，这里直接变成更新字典，应改为追加
       #exec('self.prey_'+str(pos[0]//self.blocksize[0])+'_'+str(pos[1]//self.blocksize[1])+'={new_prey:pos}')
-      exec('self.prey_'+str(pos[0]//self.blocksize[0])+'_'+str(pos[1]//self.blocksize[1])+'[new_prey]=pos')
+      exec('self.cow_'+str(pos[0]//self.blocksize[0])+'_'+str(pos[1]//self.blocksize[1])+'[new_cow]=pos')
       #1.0.2更新 这里也是用一个字典来存整个prey,优点在于删除的时间复杂度为1
-      self.prey_d[new_prey] = pos
-      # self.prey=np.hstack((self.prey,Prey([150,300])))
+      self.cow_d[new_cow] = pos
+      # self.Cow=np.hstack((self.Cow,Cow([150,300])))
 
-    for i in range(0, number_of_prey_s):
-      new_prey_s = Prey_s([random.uniform(0,self.x_range),random.uniform(0,self.y_range)])    
-      pos = new_prey_s.getPos()
+    for i in range(0, number_of_sheep):
+      new_sheep = Sheep([random.uniform(0,self.x_range),random.uniform(0,self.y_range)])    
+      pos = new_sheep.getPos()
       #这是目前我们的存储容器，字典
       #1.0.2更新，这里直接变成更新字典，应改为追加
       #exec('self.prey_'+str(pos[0]//self.blocksize[0])+'_'+str(pos[1]//self.blocksize[1])+'={new_prey:pos}')
-      exec('self.prey_s_'+str(pos[0]//self.blocksize[0])+'_'+str(pos[1]//self.blocksize[1])+'[new_prey_s]=pos')
+      exec('self.sheep_'+str(pos[0]//self.blocksize[0])+'_'+str(pos[1]//self.blocksize[1])+'[new_sheep]=pos')
       #1.0.2更新 这里也是用一个字典来存整个prey,优点在于删除的时间复杂度为1
-      self.prey_s_d[new_prey_s] = pos
+      self.sheep_d[new_sheep] = pos
 
 
-    for i in range(0, number_of_predator):
+    for i in range(0, number_of_tiger):
       x = random.uniform(0,self.x_range)
       y = random.uniform(0,self.y_range)
-      new_predator = Predator([int(x),int(y)])
+      new_tiger = Tiger([int(x),int(y)])
       
       #这是目前我们的存储容器，字典
       #1.0.2更新，这里直接变成更新字典，应改为追加
-      #exec('self.predator_'+str(int(x)//50)+'_'+str(int(y)//50)+'={new_predator:[x,y]}')
-      self.predators_d[new_predator] = [x,y]
-      exec('self.predator_'+str(int(x)//12)+'_'+str(int(y)//12)+'[new_predator]=[x,y]')
+      #exec('self.predator_'+str(int(x)//50)+'_'+str(int(y)//50)+'={new_tiger:[x,y]}')
+      self.tiger_d[new_tiger] = [x,y]
+      exec('self.tiger_'+str(int(x)//12)+'_'+str(int(y)//12)+'[new_tiger]=[x,y]')
   
   def generate_food(self, num_trees, num_forests, forest_epicenter = [-1,-1]):
     if len(forest_epicenter)>0 and forest_epicenter[0]==-1:
@@ -139,9 +145,9 @@ class World():
   
   def eat_and_move(self):
       #1.0.2更新 变量更新
-      for prey in self.prey_d.keys():
-      # if predator.moveflag:
-        pos=prey.getPos()
+      for Cow in self.cow_d.keys():
+      # if Tiger.moveflag:
+        pos=Cow.getPos()
         creatureXblock=pos[0]//self.blocksize[0]
         creatureYblock=pos[1]//self.blocksize[1]
         self.dist = 999
@@ -155,14 +161,14 @@ class World():
         #print(dist)
         #下面这个判断条件是我随机加的，不一定好用，你们可以尝试通过计算得到一个相对合理的条件
         #1.0.2更新 变量更新
-        if self.dist < prey.size+5: 
+        if self.dist < Cow.size+5: 
             #这个应该是牛（prey）移动到食物坐标，这里的move是原来的随机移动函数，我稍微改了一下，可能还有bug
             #这里应该还要调用eat函数，来更新牛吃到草后的属性更新
             #1.0.2更新，全局变量问题
-            self.prey_d[prey] = self.target_food_pos
-            exec('self.prey_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey] = self.target_food_pos')
-            prey.move(self.target_food_pos)
-            prey.eat()
+            self.cow_d[Cow] = self.target_food_pos
+            exec('self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Cow] = self.target_food_pos')
+            Cow.move(self.target_food_pos)
+            Cow.eat()
             #这是上一种思路，想通过食物的坐标反推其字典里面的key值，不过zip生成的是一次性的迭代器所以好像比较难操作，目前换了一种思路
             '''
             exec('temp = zip(self.food_'+str(creatureXblock)+'_'+str(creatureYblock)+'.values(), self.food_'+str(creatureXblock)+'_'+str(creatureYblock)+'.keys())')
@@ -174,16 +180,16 @@ class World():
             del self.food_d[self.target_food]
         
         else:
-            prey.random_move((self.x_range,self.y_range))
-            exec('del self.prey_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey]')
-            pos=prey.getPos()
+            Cow.random_move((self.x_range,self.y_range))
+            exec('del self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Cow]')
+            pos=Cow.getPos()
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]
-            exec('self.prey_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey] = pos')
-            self.prey_d[prey] = pos
-      for prey_s in self.prey_s_d.keys():
-      # if predator.moveflag:
-        pos=prey_s.getPos()
+            exec('self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Cow] = pos')
+            self.cow_d[Cow] = pos
+      for Sheep in self.sheep_d.keys():
+      # if Tiger.moveflag:
+        pos=Sheep.getPos()
         creatureXblock=pos[0]//self.blocksize[0]
         creatureYblock=pos[1]//self.blocksize[1]
         self.dist = 999
@@ -197,14 +203,14 @@ class World():
         #print(dist)
         #下面这个判断条件是我随机加的，不一定好用，你们可以尝试通过计算得到一个相对合理的条件
         #1.0.2更新 变量更新
-        if self.dist < prey_s.size+5: 
+        if self.dist < Sheep.size+5: 
             #这个应该是牛（prey）移动到食物坐标，这里的move是原来的随机移动函数，我稍微改了一下，可能还有bug
             #这里应该还要调用eat函数，来更新牛吃到草后的属性更新
             #1.0.2更新，全局变量问题
-            self.prey_s_d[prey_s] = self.target_food_pos
-            exec('self.prey_s_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey_s] = self.target_food_pos')
-            prey_s.move(self.target_food_pos)
-            prey_s.eat()
+            self.sheep_d[Sheep] = self.target_food_pos
+            exec('self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Sheep] = self.target_food_pos')
+            Sheep.move(self.target_food_pos)
+            Sheep.eat()
             #这是上一种思路，想通过食物的坐标反推其字典里面的key值，不过zip生成的是一次性的迭代器所以好像比较难操作，目前换了一种思路
             '''
             exec('temp = zip(self.food_'+str(creatureXblock)+'_'+str(creatureYblock)+'.values(), self.food_'+str(creatureXblock)+'_'+str(creatureYblock)+'.keys())')
@@ -216,38 +222,38 @@ class World():
             del self.food_d[self.target_food]
         
         else:
-            prey_s.random_move((self.x_range,self.y_range))
-            exec('del self.prey_s_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey_s]')
-            pos=prey_s.getPos()
+            Sheep.random_move((self.x_range,self.y_range))
+            exec('del self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Sheep]')
+            pos=Sheep.getPos()
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]
-            exec('self.prey_s_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey_s] = pos')
-            self.prey_s_d[prey_s] = pos  
+            exec('self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Sheep] = pos')
+            self.sheep_d[Sheep] = pos  
             
                 
       #1.0.2更新，已经改了
       #这下面还没改，等上面牛吃草完善好了之后应该可以直接相同思路copy
       #1.0.2更新，for循环也改了，你们可以和原版比较一下
-      for predator in self.predators_d.keys():
-      # if predator.moveflag:
-        pos=predator.getPos()
+      for Tiger in self.tiger_d.keys():
+      # if Tiger.moveflag:
+        pos=Tiger.getPos()
         creatureXblock=pos[0]//self.blocksize[0]
         creatureYblock=pos[1]//self.blocksize[1]
         #1.0.2更新 变量更新
         self.dist = 999
-        b = 'for prey in self.prey_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_pos1 = self.prey_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey] \n  print(prey_pos1)\n  if self.dist > math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2)\n    self.target_prey = prey\n    self.target_prey_pos = prey_pos1'
-      # if predator.moveflag:
+        b = 'for Cow in self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_pos1 = self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Cow] \n  print(prey_pos1)\n  if self.dist > math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2)\n    self.target_prey = Cow\n    self.target_prey_pos = prey_pos1'
+      # if Tiger.moveflag:
         exec(b)
-        b = 'for prey_s in self.prey_s_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_s_pos1 = self.prey_s_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey_s] \n  print(prey_s_pos1)\n  if self.dist > math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2)\n    self.target_prey = prey_s\n    self.target_prey_pos = prey_s_pos1'
+        b = 'for Sheep in self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_s_pos1 = self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Sheep] \n  print(prey_s_pos1)\n  if self.dist > math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2)\n    self.target_prey = Sheep\n    self.target_prey_pos = prey_s_pos1'
         exec(b)
         #1.0.2更新 变量更新
-        if self.dist < predator.size+5: 
+        if self.dist < Tiger.size+5: 
             #这个应该是牛（prey）移动到食物坐标，这里的move是原来的随机移动函数，我稍微改了一下，可能还有bug
             #1.0.2更新 变量更新
-            self.predators_d[predator] = self.target_prey_pos
-            exec('self.predator_'+str(creatureXblock)+'_'+str(creatureYblock)+'[predator] = self.target_prey_pos')
-            predator.move(self.target_prey_pos)
-            predator.eat()
+            self.tiger_d[Tiger] = self.target_prey_pos
+            exec('self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Tiger] = self.target_prey_pos')
+            Tiger.move(self.target_prey_pos)
+            Tiger.eat()
             #这是上一种思路，想通过食物的坐标反推其字典里面的key值，不过zip生成的是一次性的迭代器所以好像比较难操作，目前换了一种思路
             '''
             exec('temp = zip(self.food_'+str(creatureXblock)+'_'+str(creatureYblock)+'.values(), self.food_'+str(creatureXblock)+'_'+str(creatureYblock)+'.keys())')
@@ -255,93 +261,93 @@ class World():
             '''
             #这一步是删除被吃的猎物（草）
             #1.0.2更新 除了删除对应50*50字典里的prey，还删除了存所有prey的字典：prey_d里面的prey
-            if self.target_prey in self.prey_d:
-              del self.prey_d[self.target_prey]
-              exec('del self.prey_'+str(creatureXblock)+'_'+str(creatureYblock)+'[self.target_prey]')
+            if self.target_prey in self.cow_d:
+              del self.cow_d[self.target_prey]
+              exec('del self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[self.target_prey]')
             else:
-              del self.prey_s_d[self.target_prey]
-              exec('del self.prey_s_'+str(creatureXblock)+'_'+str(creatureYblock)+'[self.target_prey]')
+              del self.sheep_d[self.target_prey]
+              exec('del self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[self.target_prey]')
 
         #1.0.3更新 随机移动
         else:
-            predator.random_move((self.x_range,self.y_range))
-            exec('del self.predator_'+str(creatureXblock)+'_'+str(creatureYblock)+'[predator]')
-            pos=predator.getPos()
+            Tiger.random_move((self.x_range,self.y_range))
+            exec('del self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Tiger]')
+            pos=Tiger.getPos()
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]
-            exec('self.predator_'+str(creatureXblock)+'_'+str(creatureYblock)+'[predator] = pos')
-            self.predators_d[predator] = pos
+            exec('self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Tiger] = pos')
+            self.tiger_d[Tiger] = pos
         '''
         else:
-            predator.random_move((self.x_range,self.y_range))
+            Tiger.random_move((self.x_range,self.y_range))
             '''
   #1.0.3更新 死亡迭代，繁殖迭代
   def reset_creatures(self):
-    for prey in list(self.prey_d.keys()):
+    for cow in list(self.cow_d.keys()):
           #死亡
-          if prey.health <100 or prey.life <= 0:   #似乎等价于creature.content不为false
-            pos=prey.getPos()
+          if cow.health <100 or cow.life <= 0:   #似乎等价于creature.content不为false
+            pos=cow.getPos()
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]
             #从两个字典里面都要删除
-            exec('del self.prey_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey]')
-            del self.prey_d[prey]
+            exec('del self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[cow]')
+            del self.cow_d[cow]
           #繁殖  
-          elif prey.fertility > 0:
-            prey.life = prey.life-1
-            p = Prey(prey.getPos(),prey.speed+np.random.randint(-10,10))
+          elif cow.fertility > 0:
+            cow.life = cow.life-1
+            p = Cow(cow.getPos(),cow.speed+np.random.randint(-10,10))
             pos = p.getPos()
-            # print("New prey added")
-            self.prey_d[p] = pos
+            # print("New Cow added")
+            self.cow_d[p] = pos
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]
-            exec('self.prey_'+str(creatureXblock)+'_'+str(creatureYblock)+'[p] = pos')
-            prey.newIteration()
+            exec('self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[p] = pos')
+            cow.newIteration()
     
-    for prey_s in list(self.prey_s_d.keys()):
+    for sheep in list(self.sheep_d.keys()):
           #死亡
-          if prey_s.health <100 or prey_s.life <= 0:   #似乎等价于creature.content不为false
-            pos=prey_s.getPos()
+          if sheep.health <100 or sheep.life <= 0:   #似乎等价于creature.content不为false
+            pos=sheep.getPos()
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]
             #从两个字典里面都要删除
-            exec('del self.prey_s_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey_s]')
-            del self.prey_s_d[prey_s]
+            exec('del self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[sheep]')
+            del self.sheep_d[sheep]
           #繁殖  
-          elif prey_s.fertility > 0:
-            prey_s.life = prey_s.life-1
-            p = Prey_s(prey_s.getPos(),prey_s.speed+np.random.randint(-10,10))
+          elif sheep.fertility > 0:
+            sheep.life = sheep.life-1
+            p = Sheep(sheep.getPos(),sheep.speed+np.random.randint(-10,10))
             pos = p.getPos()
-            # print("New prey added")
-            self.prey_s_d[p] = pos
+            # print("New Cow added")
+            self.sheep_d[p] = pos
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]
-            exec('self.prey_s_'+str(creatureXblock)+'_'+str(creatureYblock)+'[p] = pos')
-            prey_s.newIteration()
+            exec('self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[p] = pos')
+            sheep.newIteration()
     
-    # self.prey = np.array(new_prey)
+    # self.Cow = np.array(new_prey)
         
-    for predator in list(self.predators_d.keys()):
+    for tiger in list(self.tiger_d.keys()):
           #死亡
-          print(predator.health)
-          if predator.health <100 or predator.life <= 0:   #似乎等价于creature.content不为false
-            pos=predator.getPos()
+          #print(tiger.health)
+          if tiger.health <100 or tiger.life <= 0:   #似乎等价于creature.content不为false
+            pos=tiger.getPos()
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]
             #从两个字典里面都要删除
-            exec('del self.predator_'+str(creatureXblock)+'_'+str(creatureYblock)+'[predator]')
-            del self.predators_d[predator]
+            exec('del self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[tiger]')
+            del self.tiger_d[tiger]
           #繁殖
-          elif predator.fertility > 0:
-            predator.life = predator.life-1
-            p = Prey(predator.getPos(),predator.speed+np.random.randint(-10,10))
+          elif tiger.fertility > 0:
+            tiger.life = tiger.life-1
+            p = Tiger(tiger.getPos(),tiger.speed+np.random.randint(-10,10))
             pos = p.getPos()
-            # print("New prey added")
-            self.predators_d[p] = pos
+            # print("New Cow added")
+            self.tiger_d[p] = pos
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]
-            exec('self.predator_'+str(creatureXblock)+'_'+str(creatureYblock)+'[p] = pos')
-            predator.newIteration()
+            exec('self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[p] = pos')
+            tiger.newIteration()
 
   def clear_food(self):
       for food in self.food_d:
@@ -374,12 +380,12 @@ class World():
         '''
         Print function for the creatures present; draws a circle corresponding to the creature's position in gameDisplay.
         '''
-        for prey in self.prey_d:
-            draw.circle(gameDisplay,prey.color,prey.getPos(),prey.size+2)
-        for prey_s in self.prey_s_d:
-            draw.circle(gameDisplay,prey_s.color,prey_s.getPos(),prey_s.size+2)
-        for predator in self.predators_d:
-            draw.circle(gameDisplay,predator.color,predator.getPos(),predator.size-1)
+        for Cow in self.cow_d:
+            draw.circle(gameDisplay,Cow.color,Cow.getPos(),Cow.size+2)
+        for Sheep in self.sheep_d:
+            draw.circle(gameDisplay,Sheep.color,Sheep.getPos(),Sheep.size+2)
+        for Tiger in self.tiger_d:
+            draw.circle(gameDisplay,Tiger.color,Tiger.getPos(),Tiger.size-1)
 
 
     ##
