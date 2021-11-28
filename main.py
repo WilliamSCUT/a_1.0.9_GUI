@@ -1,7 +1,7 @@
 from numpy.core.numeric import ones
 import pygame
 from pygame import *
-from GUI import Button_TextBox_1_1
+from GUI import Button_TextBox_1_2
 from GUI import gval
 import matplotlib
 import matplotlib.pyplot as plt
@@ -16,37 +16,40 @@ from Cow import Cow
 from food import Food
 from world import World 
 from Sheep import Sheep
-
+import matplotlib.backends.backend_agg as agg
+import pylab
 
 
 gval.init()
 
 def main():
     clock = pygame.time.Clock()
-    BT = Button_TextBox_1_1.Button_TextBox()
+    BT = Button_TextBox_1_2.Button_TextBox()
    
-    
     scr = BT.init()
-    input_box1 = BT.box1(60, 300, 100, 30, 1)
-    input_box2 = BT.box2(260, 300, 100, 30, 2)
-    input_box3 = BT.box3(460, 300, 100, 30, 2)
+    input_box1 = BT.box1(25, 300, 100, 30, 1)
+    input_box2 = BT.box2(170, 300, 100, 30, 2)
+    input_box3 = BT.box3(325, 300, 100, 30, 2)
+    input_box4 = BT.box4(475, 300, 100, 30, 2)
     
-    label_1 = BT.label1("Ecosystem simulator",(300,100))
-    label_2 = BT.label2("Creature Num",(100,250))
-    label_3 = BT.label3("Food Num",(300,250))
-    label_4 = BT.label4("Day Num",(500,250))
+    label_1 = BT.label1("Ecosystem Simulator",(300,100))
+    label_2 = BT.label2("Tiger Num",(70,250))
+    label_3 = BT.label3("Sheep Num",(220,250))
+    label_4 = BT.label4("Cow Num",(370,250))
+    label_5 = BT.label5("Grass Num",(520,250))
     button = BT.button()
     
     BT.register_cp(input_box1)
     BT.register_cp(input_box2)
     BT.register_cp(input_box3)
+    BT.register_cp(input_box4)
+    
     BT.register_cp(label_1)
     BT.register_cp(label_2)
     BT.register_cp(label_3)
     BT.register_cp(label_4)
+    BT.register_cp(label_5)
     BT.register_cp(button)
-    
-    
     BT.run(scr)
 
 if __name__ == '__main__':
@@ -56,90 +59,135 @@ if __name__ == '__main__':
 
 # 以上是开始界面，用来输入参数
 
-def plot_stats(day_num,Tiger_num,Cow_num,Sheep_num,food_num):
+def plot_stats(gameDisplay,day_num,Tiger_num,Sheep_num,Cow_num,food_num):
   '''
   Function to add the plots of the number of creatures
   '''
 
-  global fig,ax1,ax2
-  plt.cla()
-  plt.plot(day_num,Tiger_num,"r",label = 'Tiger')
-  plt.plot(day_num,Cow_num,"b",label = 'Cow')
-  plt.plot(day_num,Sheep_num,"c",label = 'Sheep')
-  plt.plot(day_num,food_num,"g",label = 'food')
-  plt.xlabel("Day Number")
-  plt.ylabel("Creatures(foods) Number")
-  my_x_ticks = np.arange(1,len(day_num),1)
-  plt.xticks(my_x_ticks)
-  plt.legend()
-  plt.pause(0.1)
+  fig = pylab.figure(figsize=[3,3], dpi=100,)
+  ax = fig.gca()
+  ax.plot(day_num,Tiger_num,label = "Tiger")
+  ax.plot(day_num,Sheep_num, label = "Sheep")
+  ax.plot(day_num,Cow_num,label = "Cow")
+  ax.plot(day_num,food_num,label = "Food")
+  ax.legend()
   
+  ax.set_xlabel("Day Number")
+
+  ax.set_title("Creature Status")
+  ax.grid()
   
+  canvas_2 = agg.FigureCanvasAgg(fig)
+  canvas_2.draw()
+  renderer = canvas_2.get_renderer()
+  raw_data = renderer.tostring_rgb()
+  size = canvas_2.get_width_height()
 
-clock=time.Clock()
+  surf = pygame.image.fromstring(raw_data,size,"RGB")
+  gameDisplay.blit(surf,(600,0))
+  
+  pygame.display.update()
+  
+while True:
+    clock=time.Clock()
+    '''
+    h=600
+    w=600
+    gameDisplay=display.set_mode((h,w))
+    display.set_caption("Evolution")
+    '''
+    w=900
+    h=600
+    gameDisplay=display.set_mode((w,h))
+    display.set_caption("Evolution")
+    canvas = pygame.Surface((600,600))
+    canvas_2 = pygame.Surface((300,300))
+    main_plot = pygame.Rect(0,0,600,600)
+    sub_plot = pygame.Rect(0,0,300,300)
+    # 定义屏幕
 
-h=600
-w=600
-gameDisplay=display.set_mode((h,w))
-display.set_caption("Evolution")
+    #接下来是主程序部分
 
-# 定义屏幕
+    #展示屏幕
 
-#接下来是主程序部分
+    display.set_caption("Evolution")
 
-#展示屏幕
-gameDisplay = display.set_mode((600,600))
-display.set_caption("Evolution")
+    Sheeptats = []
+    Tiger_stats = []
+    # number_of_creatures =  int(gval.get_value("Creature Num"))
+    # number_of_Cow
+    # = 20*number_of_creatures
+    # number_of_days = int(gval.get_value("Day Num"))
+    # number_of_Tigers = number_of_creatures
 
-Sheeptats = []
-Tiger_stats = []
-# number_of_creatures =  int(gval.get_value("Creature Num"))
-# number_of_Cow
-# = 20*number_of_creatures
-# number_of_days = int(gval.get_value("Day Num"))
-# number_of_Tigers = number_of_creatures
+    number_of_food = 1000
+    number_of_Tigers = 10
+    number_of_Cow = 100
+    number_of_Sheep = 100
+    number_of_forests = 7
+    # number_of_food = int(gval.get_value("Food Num"))
+    number_of_steps = 150
+    forest_epicenters = [-1]*number_of_forests
 
-number_of_food = 1000
-number_of_Tigers = 10
-number_of_Cow = 100
-number_of_Sheep = 100
-number_of_forests = 7
-# number_of_food = int(gval.get_value("Food Num"))
-number_of_steps = 100
-forest_epicenters = [-1]*number_of_forests
+    number_of_days = 100
+    #这个只执行一次
+    world = World()
+    world.initialize_creatures(number_of_Cow,number_of_Sheep,number_of_Tigers)
 
-number_of_days = 100
-#这个只执行一次
-world = World()
-world.initialize_creatures(number_of_Cow,number_of_Sheep,number_of_Tigers)
+    Tiger_num = []
+    Cow_num = []
+    Sheep_num = []
+    food_num = []
+    day_num = []
 
-Tiger_num = []
-Cow_num = []
-Sheep_num = []
-food_num = []
-day_num = []
+    for day in range(0,number_of_days):
+    #Sheeptats.append(world.num_Cow
+    #)
+        canvas_2.fill((255,255,255))
+        Tiger_num.append(len(world.tiger_d))
+        Cow_num.append(len(world.cow_d))
+        Sheep_num.append(len(world.sheep_d))
+        food_num.append(len(world.food_d))
+        day_num.append(day+1)
+        plot_stats(gameDisplay,day_num,Tiger_num,Sheep_num,Cow_num,food_num)
 
-for day in range(0,number_of_days):
-#Sheeptats.append(world.num_Cow
-#)
-    steps_taken = 0
-    forest_epicenters = world.generate_food(number_of_food,len(forest_epicenters),forest_epicenters)
-    while steps_taken < number_of_steps:
-        world.eat_and_move()
-        steps_taken = steps_taken + 1
-        gameDisplay.fill((255,255,255))
-        world.print_food(gameDisplay)
-        world.print_creatures(gameDisplay)
-        display.update()
-        clock.tick(60)
-    Tiger_num.append(len(world.tiger_d))
-    Cow_num.append(len(world.cow_d))
-    Sheep_num.append(len(world.sheep_d))
-    food_num.append(len(world.food_d))
-    day_num.append(day+1)
-    plot_stats(day_num,Tiger_num,Cow_num,Sheep_num,food_num)
-    world.reset_creatures()
-    world.clear_food()
+        steps_taken = 0
+        forest_epicenters = world.generate_food(number_of_food,len(forest_epicenters),forest_epicenters)
+        climate = np.random.randint(0,9)
+        while steps_taken < number_of_steps:
+            
+            world.eat_and_move()
+            steps_taken = steps_taken + 1
+            world.print_food(canvas)
+            world.print_creatures(canvas)
+            
+            gameDisplay.blit(canvas,(0,0),main_plot)
+            
+            display.update()
+            clock.tick(60)
+            if steps_taken < 75:
+                    
+                    if climate <5: # 晴天
+                        canvas.fill((255,255,255))
+                        sunny = pygame.image.load('sunny.png')
+                        sunny = pygame.transform.scale(sunny,(200,200))
+                        gameDisplay.blit(sunny,(600,300))
+                    else: # 雨天
+                        canvas.fill((30,144,255))
+                        rainy = pygame.image.load('rainy.png')
+                        rainy = pygame.transform.scale(rainy,(200,200))
+                        gameDisplay.blit(rainy,(600,300))
+            else:
+                canvas.fill((105,105,105))
+                night = pygame.image.load('night.png')
+                night = pygame.transform.scale(night,(200,200))
+                gameDisplay.blit(night,(600,300))
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        world.reset_creatures()
+        world.clear_food()
     
     # GUI
     

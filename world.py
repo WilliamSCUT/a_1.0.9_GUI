@@ -109,10 +109,10 @@ class World():
     if np.random.uniform(0,1)>0.9:
       if num_forests>0:
         print("A forest is no longer able to sustain itself!!")
-        print(len(forest_epicenter))
+        #print(len(forest_epicenter))
         num_forests = num_forests-1
         forest_epicenter.pop(np.random.randint(0,len(forest_epicenter)))
-        print(len(forest_epicenter))
+        #print(len(forest_epicenter))
       if num_forests == 0:
         print("There will be scarcity of food. No one will survive!!")  
       
@@ -293,7 +293,7 @@ class World():
             exec('del self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[cow]')
             del self.cow_d[cow]
           #繁殖  
-          elif cow.fertility > 20:
+          elif cow.fertility > 0:
             #cow.life = cow.life-1
             p = Cow(cow.getPos(),cow.speed+np.random.randint(-10,10))
             pos = p.getPos()
@@ -314,7 +314,7 @@ class World():
             exec('del self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[sheep]')
             del self.sheep_d[sheep]
           #繁殖  
-          elif sheep.fertility > 20:
+          elif sheep.fertility > 0:
             #sheep.life = sheep.life-1
             p = Sheep(sheep.getPos(),sheep.speed+np.random.randint(-10,10))
             pos = p.getPos()
