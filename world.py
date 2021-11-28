@@ -293,8 +293,8 @@ class World():
             exec('del self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[cow]')
             del self.cow_d[cow]
           #繁殖  
-          elif cow.fertility > 0:
-            cow.life = cow.life-1
+          elif cow.fertility > 20:
+            #cow.life = cow.life-1
             p = Cow(cow.getPos(),cow.speed+np.random.randint(-10,10))
             pos = p.getPos()
             # print("New Cow added")
@@ -314,8 +314,8 @@ class World():
             exec('del self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[sheep]')
             del self.sheep_d[sheep]
           #繁殖  
-          elif sheep.fertility > 0:
-            sheep.life = sheep.life-1
+          elif sheep.fertility > 20:
+            #sheep.life = sheep.life-1
             p = Sheep(sheep.getPos(),sheep.speed+np.random.randint(-10,10))
             pos = p.getPos()
             # print("New Cow added")
@@ -338,7 +338,7 @@ class World():
             exec('del self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[tiger]')
             del self.tiger_d[tiger]
           #繁殖
-          elif tiger.fertility > 0:
+          elif tiger.fertility > 40:
             tiger.life = tiger.life-1
             p = Tiger(tiger.getPos(),tiger.speed+np.random.randint(-10,10))
             pos = p.getPos()
@@ -348,7 +348,9 @@ class World():
             creatureYblock=pos[1]//self.blocksize[1]
             exec('self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[p] = pos')
             tiger.newIteration()
-
+          else:
+            tiger.life = tiger.life-1
+            #这里是应对不能动，又不能繁殖的tiger不死的策略
   def clear_food(self):
       for food in self.food_d:
           pos = food.getPos()
@@ -381,11 +383,11 @@ class World():
         Print function for the creatures present; draws a circle corresponding to the creature's position in gameDisplay.
         '''
         for Cow in self.cow_d:
-            draw.circle(gameDisplay,Cow.color,Cow.getPos(),Cow.size+2)
+            draw.circle(gameDisplay,Cow.color,Cow.getPos(),4)
         for Sheep in self.sheep_d:
-            draw.circle(gameDisplay,Sheep.color,Sheep.getPos(),Sheep.size+2)
+            draw.circle(gameDisplay,Sheep.color,Sheep.getPos(),4)
         for Tiger in self.tiger_d:
-            draw.circle(gameDisplay,Tiger.color,Tiger.getPos(),Tiger.size-1)
+            draw.circle(gameDisplay,Tiger.color,Tiger.getPos(),6)
 
 
     ##

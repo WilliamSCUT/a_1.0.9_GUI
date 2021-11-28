@@ -65,7 +65,7 @@ def plot_stats(day_num,Tiger_num,Cow_num,Sheep_num,food_num):
   plt.cla()
   plt.plot(day_num,Tiger_num,"r",label = 'Tiger')
   plt.plot(day_num,Cow_num,"b",label = 'Cow')
-  plt.plot(day_num,Sheep_num,"b",label = 'Sheep')
+  plt.plot(day_num,Sheep_num,"c",label = 'Sheep')
   plt.plot(day_num,food_num,"g",label = 'food')
   plt.xlabel("Day Number")
   plt.ylabel("Creatures(foods) Number")
@@ -105,7 +105,7 @@ number_of_Cow = 100
 number_of_Sheep = 100
 number_of_forests = 7
 # number_of_food = int(gval.get_value("Food Num"))
-number_of_steps = 300
+number_of_steps = 100
 forest_epicenters = [-1]*number_of_forests
 
 number_of_days = 100
