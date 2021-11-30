@@ -410,7 +410,7 @@ class Button_TextBox:
                         gval.set_value("Tiger Num", self.text1)
                         gval.set_value("Sheep Num", self.text2)
                         gval.set_value("Cow Num", self.text3)
-                        gval.set_value("Grass Num", self.text4)
+                        gval.set_value("Growth Rate", self.text4)
                         
                         if self.button_if_click_2:
                             gval.set_value("mode",0)

@@ -192,8 +192,6 @@ class World():
               del self.sheep_d[self.target_prey]
               exec('del self.sheep_'+str(c0)+'_'+str(c1)+'[self.target_prey]')
             
-
-
         else:
             #Tiger.health -= (Tiger.size+5+self.climate)*0.02
             if self.dist != 999:

@@ -51,7 +51,7 @@ def main():
     label_2 = BT.label2("Tiger Num",(70,250))
     label_3 = BT.label3("Sheep Num",(220,250))
     label_4 = BT.label4("Cow Num",(370,250))
-    label_5 = BT.label5("Grass Num",(520,250))
+    label_5 = BT.label5("Growth Rate",(520,250))
     button = BT.button()
     button_2 = BT.button_2()
     button_3 = BT.button_3()
@@ -106,8 +106,8 @@ def plot_stats(gameDisplay,day_num,Tiger_num,Sheep_num,Cow_num,food_num):
   
   pygame.display.update()
 
-
-while True:
+r =True
+while r:
     clock=time.Clock()
     '''
     h=600
@@ -142,10 +142,10 @@ while True:
     number_of_Sheep = 100
     number_of_forests = 12
     
-    # number_of_Tigers = int(gval.get_value("Tiger Num"))
-    # number_of_Cow = int(gval.get_value("Cow Num"))
-    # number_of_Sheep = int(gval.get_value("Sheep Num"))
-    # number_of_food = int(gval.get_value("Grass Num"))
+    number_of_Tigers = int(gval.get_value("Tiger Num"))
+    number_of_Cow = int(gval.get_value("Cow Num"))
+    number_of_Sheep = int(gval.get_value("Sheep Num"))
+    growthrate = int(gval.get_value("Growth Rate"))
     mode = gval.get_value("mode")
     forest_epicenters = [-1]*number_of_forests
     number_of_steps = 150
@@ -156,6 +156,7 @@ while True:
     sub_plot = pygame.Rect(0,0,600,600)
     text = pygame.Rect(0,0,200,200)
     myfont = pygame.font.Font(None,25)
+    myfont_2 = pygame.font.Font(None,30)
     blue = (39,64,139)
     orange = (238,154,73)
     red = (205,85,85)
@@ -193,14 +194,18 @@ while True:
     Sheep_num = []
     food_num = []
     day_num = []
-    growthrate = 1
+    # growthrate = 1
 
     #Start loop for one day
     for day in range(0,number_of_days):
-        steps_taken = 0
-        number_of_food = number_of_food-day*50*(growthrate-1)
-        #Generate forest, which is the center of glass distribution.
+        steps_taken = 0 
+        #number_of_food = number_of_food-50*(growthrate-1)
+        number_of_food = int((1/growthrate)*500+500)
         forest_epicenters = world.generate_food(number_of_food,len(forest_epicenters),forest_epicenters)
+
+         
+        #Generate forest, which is the center of glass distribution.
+        # forest_epicenters = world.generate_food(number_of_food,len(forest_epicenters),forest_epicenters)
         canvas_2.fill((255,255,255))
         #Plot the number of each creature
         plot_stats(gameDisplay,day_num,Tiger_num,Sheep_num,Cow_num,food_num)
@@ -215,11 +220,11 @@ while True:
                 p1,p2 = world.sensitive_eat_and_move(prey_net,predator_net)
                 # print(p1)
                 canvas_4.fill(blue)
-                textimage_10 = myfont.render("Evoluation Level",True,red)
-                textimage_11 = myfont.render("Tiger's avg Level:",True,red)
-                textimage_12 = myfont.render("Cow's avg Level:",True,red)
-                textimage_13 = myfont.render(str(p1[0]),True,red)
-                textimage_14 = myfont.render(str(p2[0]),True,red)
+                textimage_10 = myfont_2.render("Evoluation Level",True,red)
+                textimage_11 = myfont_2.render("Tiger's evol Level:",True,red)
+                textimage_12 = myfont_2.render("Cow's evol Level:",True,red)
+                textimage_13 = myfont_2.render(str(p1[0]),True,red)
+                textimage_14 = myfont_2.render(str(p2[0]),True,red)
                 canvas_4.blit(textimage_10,(10,20))
                 canvas_4.blit(textimage_11,(10,80))
                 canvas_4.blit(textimage_12,(10,120))
@@ -249,7 +254,7 @@ while True:
             world.print_creatures(canvas)
             gameDisplay.blit(canvas,(0,0),main_plot)
             display.update()
-            clock.tick(60)
+            clock.tick(30)
             steps_taken = steps_taken + 1
 
             for event in pygame.event.get():
