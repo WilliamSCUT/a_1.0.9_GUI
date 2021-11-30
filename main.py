@@ -1,16 +1,26 @@
+'''
+main.py
+This is the main program of this project.You can run this file.
+While True is the start of the loop.
+1.The design of the initial interface GUI and the input of parameters from user.
+2.Create world objects and generate various creatures in the world
+3.Use a for loop to iterate over the number of days.
+4.Use a while loop to iterate the action of creature within a day
+5.Real-time display of the movement, death, and reproduction process of creatures, as well as drawing a line graph of the number of creatures.
+'''
+
+
 from numpy.core.numeric import ones
+from numpy.lib.function_base import disp
 import pygame
 from pygame import *
-from GUI import Button_TextBox_1_2
+from GUI import Button_TextBox_1_3
 from GUI import gval
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import numpy as np
 import random
 import numpy.linalg as LA
 import math
-from creature import Creature
+import torch
 from Tiger import Tiger
 from Cow import Cow
 from food import Food
@@ -18,13 +28,18 @@ from world import World
 from Sheep import Sheep
 import matplotlib.backends.backend_agg as agg
 import pylab
-
-
+from evoluation.prey_nn import Prey_nn
+from evoluation.predator_nn import Predator_nn
+torch.cuda.set_device(0)
+prey_net = Prey_nn(2,8,2)
+prey_net.cuda(torch.device(0))
+predator_net = Predator_nn(2,8,2)
+predator_net.cuda(torch.device(0))
 gval.init()
 
 def main():
     clock = pygame.time.Clock()
-    BT = Button_TextBox_1_2.Button_TextBox()
+    BT = Button_TextBox_1_3.Button_TextBox()
    
     scr = BT.init()
     input_box1 = BT.box1(25, 300, 100, 30, 1)
@@ -38,6 +53,8 @@ def main():
     label_4 = BT.label4("Cow Num",(370,250))
     label_5 = BT.label5("Grass Num",(520,250))
     button = BT.button()
+    button_2 = BT.button_2()
+    button_3 = BT.button_3()
     
     BT.register_cp(input_box1)
     BT.register_cp(input_box2)
@@ -50,6 +67,8 @@ def main():
     BT.register_cp(label_4)
     BT.register_cp(label_5)
     BT.register_cp(button)
+    BT.register_cp(button_2)
+    BT.register_cp(button_3)
     BT.run(scr)
 
 if __name__ == '__main__':
@@ -57,21 +76,20 @@ if __name__ == '__main__':
     
     pygame.quit()
 
-# 以上是开始界面，用来输入参数
 
+# Function to plots the number of creature in the end of each day.
 def plot_stats(gameDisplay,day_num,Tiger_num,Sheep_num,Cow_num,food_num):
   '''
   Function to add the plots of the number of creatures
   '''
 
-  fig = pylab.figure(figsize=[3,3], dpi=100,)
+  fig = pylab.figure(figsize=[4,4], dpi=100,)
   ax = fig.gca()
-  ax.plot(day_num,Tiger_num,label = "Tiger")
-  ax.plot(day_num,Sheep_num, label = "Sheep")
-  ax.plot(day_num,Cow_num,label = "Cow")
-  ax.plot(day_num,food_num,label = "Food")
+  ax.plot(day_num,Tiger_num,'k',label = "Tiger")
+  ax.plot(day_num,Sheep_num,'r', label = "Sheep")
+  ax.plot(day_num,Cow_num,'y',label = "Cow")
+  ax.plot(day_num,food_num,'g',label = "Food")
   ax.legend()
-  
   ax.set_xlabel("Day Number")
 
   ax.set_title("Creature Status")
@@ -84,10 +102,11 @@ def plot_stats(gameDisplay,day_num,Tiger_num,Sheep_num,Cow_num,food_num):
   size = canvas_2.get_width_height()
 
   surf = pygame.image.fromstring(raw_data,size,"RGB")
-  gameDisplay.blit(surf,(600,0))
+  gameDisplay.blit(surf,(800,0))
   
   pygame.display.update()
-  
+
+
 while True:
     clock=time.Clock()
     '''
@@ -96,24 +115,21 @@ while True:
     gameDisplay=display.set_mode((h,w))
     display.set_caption("Evolution")
     '''
-    w=900
-    h=600
+    w=1200
+    h=800
     gameDisplay=display.set_mode((w,h))
     display.set_caption("Evolution")
-    canvas = pygame.Surface((600,600))
-    canvas_2 = pygame.Surface((300,300))
-    main_plot = pygame.Rect(0,0,600,600)
-    sub_plot = pygame.Rect(0,0,300,300)
-    # 定义屏幕
-
-    #接下来是主程序部分
-
-    #展示屏幕
+    canvas = pygame.Surface((800,800))
+    canvas_2 = pygame.Surface((400,400))
+    canvas_3 = pygame.Surface((200,200))
+    canvas_4 = pygame.Surface((400,200))
+    main_plot = pygame.Rect(0,0,800,800)
 
     display.set_caption("Evolution")
 
     Sheeptats = []
     Tiger_stats = []
+
     # number_of_creatures =  int(gval.get_value("Creature Num"))
     # number_of_Cow
     # = 20*number_of_creatures
@@ -121,17 +137,55 @@ while True:
     # number_of_Tigers = number_of_creatures
 
     number_of_food = 1000
-    number_of_Tigers = 10
+    number_of_Tigers = 5
     number_of_Cow = 100
     number_of_Sheep = 100
-    number_of_forests = 7
-    # number_of_food = int(gval.get_value("Food Num"))
-    number_of_steps = 150
+    number_of_forests = 12
+    
+    # number_of_Tigers = int(gval.get_value("Tiger Num"))
+    # number_of_Cow = int(gval.get_value("Cow Num"))
+    # number_of_Sheep = int(gval.get_value("Sheep Num"))
+    # number_of_food = int(gval.get_value("Grass Num"))
+    mode = gval.get_value("mode")
     forest_epicenters = [-1]*number_of_forests
+    number_of_steps = 150
+    number_of_days = 40
 
-    number_of_days = 100
-    #这个只执行一次
+    pygame.init()
+    
+    sub_plot = pygame.Rect(0,0,600,600)
+    text = pygame.Rect(0,0,200,200)
+    myfont = pygame.font.Font(None,25)
+    blue = (39,64,139)
+    orange = (238,154,73)
+    red = (205,85,85)
+    textimage_1 = myfont.render("Initial Condition",True,orange)
+    textimage_2 = myfont.render("Tiger Num:",True,orange)
+    textimage_3 = myfont.render("Cow Num:",True,orange)
+    textimage_4 = myfont.render("Sheep Num:",True,orange)
+    textimage_5 = myfont.render("Gress Num:",True,orange)
+
+    textimage_6 = myfont.render(str(number_of_Tigers),True,orange)
+    textimage_7 = myfont.render(str(number_of_Cow),True,orange)
+    textimage_8 = myfont.render(str(number_of_Sheep),True,orange)
+    textimage_9 = myfont.render(str(number_of_food),True,orange)
+
+    canvas_3.fill(blue)
+    canvas_3.blit(textimage_1,(10,20))
+    canvas_3.blit(textimage_2,(10,60))
+    canvas_3.blit(textimage_3,(10,100))
+    canvas_3.blit(textimage_4,(10,140))
+    canvas_3.blit(textimage_5,(10,180))
+    
+    canvas_3.blit(textimage_6,(110,60))
+    canvas_3.blit(textimage_7,(120,100))
+    canvas_3.blit(textimage_8,(120,140))
+    canvas_3.blit(textimage_9,(120,180))
+    gameDisplay.blit(canvas_3,(1000,400))
+
+    #Creature World object
     world = World()
+    #Generate creature as what the user input
     world.initialize_creatures(number_of_Cow,number_of_Sheep,number_of_Tigers)
 
     Tiger_num = []
@@ -140,199 +194,75 @@ while True:
     food_num = []
     day_num = []
 
+    #Start loop for one day
     for day in range(0,number_of_days):
-    #Sheeptats.append(world.num_Cow
-    #)
+        steps_taken = 0
+        #Generate forest, which is the center of glass distribution.
+        forest_epicenters = world.generate_food(number_of_food,len(forest_epicenters),forest_epicenters)
         canvas_2.fill((255,255,255))
+        #Plot the number of each creature
+        plot_stats(gameDisplay,day_num,Tiger_num,Sheep_num,Cow_num,food_num)
+        #Randomly decide the weather today.
+        climate = np.random.randint(0,3)
+        while steps_taken < number_of_steps:
+            #Tell which mode should the program conduct
+            world.climate = climate
+            if mode == 0:
+                world.eat_and_move()
+            else:
+                p1,p2 = world.sensitive_eat_and_move(prey_net,predator_net)
+                # print(p1)
+                canvas_4.fill(blue)
+                textimage_10 = myfont.render("Evoluation Level",True,red)
+                textimage_11 = myfont.render("Tiger's avg Level:",True,red)
+                textimage_12 = myfont.render("Cow's avg Level:",True,red)
+                textimage_13 = myfont.render(str(p1[0]),True,red)
+                textimage_14 = myfont.render(str(p2[0]),True,red)
+                canvas_4.blit(textimage_10,(10,20))
+                canvas_4.blit(textimage_11,(10,80))
+                canvas_4.blit(textimage_12,(10,120))
+                canvas_4.blit(textimage_13,(200,80))
+                canvas_4.blit(textimage_14,(200,120))
+                gameDisplay.blit(canvas_4,(800,600))
+                display.update()
+            #Half of a day had passed, it is night now!  
+            if steps_taken < 75:
+                    
+                    if climate > 1: 
+                        canvas.fill((139,115,85))
+                        sunny = pygame.image.load('sunny.png')
+                        sunny = pygame.transform.scale(sunny,(200,200))
+                        gameDisplay.blit(sunny,(800,400))
+                    else: 
+                        canvas.fill((16,78,139))
+                        rainy = pygame.image.load('rainy.png')
+                        rainy = pygame.transform.scale(rainy,(200,200))
+                        gameDisplay.blit(rainy,(800,400))
+            else:
+                canvas.fill((105,105,105))
+                night = pygame.image.load('night.png')
+                night = pygame.transform.scale(night,(200,200))
+                gameDisplay.blit(night,(800,400))
+            world.print_food(canvas)
+            world.print_creatures(canvas)
+            gameDisplay.blit(canvas,(0,0),main_plot)
+            display.update()
+            clock.tick(60)
+            steps_taken = steps_taken + 1
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+
+        #The loop for one day end, renew the number of each creature.
         Tiger_num.append(len(world.tiger_d))
         Cow_num.append(len(world.cow_d))
         Sheep_num.append(len(world.sheep_d))
         food_num.append(len(world.food_d))
         day_num.append(day+1)
-        plot_stats(gameDisplay,day_num,Tiger_num,Sheep_num,Cow_num,food_num)
-
-        steps_taken = 0
-        forest_epicenters = world.generate_food(number_of_food,len(forest_epicenters),forest_epicenters)
-        climate = np.random.randint(0,9)
-        while steps_taken < number_of_steps:
-            
-            world.eat_and_move()
-            steps_taken = steps_taken + 1
-            world.print_food(canvas)
-            world.print_creatures(canvas)
-            
-            gameDisplay.blit(canvas,(0,0),main_plot)
-            
-            display.update()
-            clock.tick(60)
-            if steps_taken < 75:
-                    
-                    if climate <5: # 晴天
-                        canvas.fill((255,255,255))
-                        sunny = pygame.image.load('sunny.png')
-                        sunny = pygame.transform.scale(sunny,(200,200))
-                        gameDisplay.blit(sunny,(600,300))
-                    else: # 雨天
-                        canvas.fill((30,144,255))
-                        rainy = pygame.image.load('rainy.png')
-                        rainy = pygame.transform.scale(rainy,(200,200))
-                        gameDisplay.blit(rainy,(600,300))
-            else:
-                canvas.fill((105,105,105))
-                night = pygame.image.load('night.png')
-                night = pygame.transform.scale(night,(200,200))
-                gameDisplay.blit(night,(600,300))
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
+        #After a day of activity, the creature reproduces or dies or spends the day normally
         world.reset_creatures()
+        
+        display.update()
+        
         world.clear_food()
-    
-    # GUI
-    
- 
-##接下来的部分大家可以理解后按照顺序补充
-
-
-
-'''
-def addGrass(_num):
-    for i in range(_num):
-        x = np.random.randint(0, size) # 0到size是x的上下限，没有给size默认为1
-        y = np.random.randint(0, size)
-        while grid[x][y] != 0:
-            x = np.random.randint(0, size)
-            y = np.random.randint(0, size)
-
-        grid[x][y] = 1  # 1代表草
-
-
-def addGrassEater(_num):
-    for i in range(_num):
-        x = np.random.randint(0, size)
-        y = np.random.randint(0, size)
-        while grid[x][y] != 0:
-            x = np.random.randint(0, size)
-            y = np.random.randint(0, size)
-
-        grid[x][y] = 2  # 2代表食草动物
-
-
-def addMeatEater(_num):
-    for i in range(_num):
-        x = np.random.randint(0, size)
-        y = np.random.randint(0, size)
-        while grid[x][y] != 0 or growAround(x, y, 2) == [-1, -1]:
-            x = np.random.randint(0, size)
-            y = np.random.randint(0, size)
-
-        grid[x][y] = 3  # 3代表食肉动物
-
-
-def growAround(_x, _y, _id):
-    field = []
-    if _x-1 < 0:
-        x_begin = 0
-    else:
-        x_begin = _x-1
-    if _y-1 < 0:
-        y_begin = 0
-    else:
-        y_begin = _y-1
-    if _x+1 > size-1:
-        x_end = size-1
-    else:
-        x_end = _x+1
-    if _y+1 > size-1:
-        y_end = size-1
-    else:
-        y_end = _y+1
-
-    for i in range(x_begin, x_end+1):
-        for j in range(y_begin, y_end+1):
-            if grid[i][j] == _id or grid[i][j] == _id*10:  # 2代表食草动物，1代表草，0代表空地
-                field += [[i, j]]
-
-    if len(field) == 0:  # 没有食物或者空地
-        return [-1, -1]
-    else:
-        count = np.random.randint(0, len(field))
-        return field[count]
-
-
-def fieldUpdate():
-    for i in range(size):
-        for j in range(size):
-            if grid[i][j] == 30:
-                grid[i][j] = 3
-            elif grid[i][j] == 20:
-                grid[i][j] = 2
-            elif grid[i][j] == 10:
-                grid[i][j] = 1
-
-
-def data_gen():
-    for count in range(times):
-        timesText.set_text('times: %d' % (count+1))
-        for i in range(size):
-            for j in range(size):
-                if grid[i][j] == 3:
-                    place = growAround(i, j, 2)
-                    if place == [-1, -1]:
-                        grid[i][j] = 0  # 食肉动物死亡
-                    else:
-                        grid[i][j] = 0
-                        grid[place[0]][place[1]] = 30  # 食肉动物进食并移动
-                        growth = growAround(i, j, 0)
-                        if growth != [-1, -1]:
-                            grid[growth[0]][growth[1]] = 30  # 食肉动物繁殖
-
-                if grid[i][j] == 2:
-                    place = growAround(i, j, 1)
-                    if place == [-1, -1]:
-                        grid[i][j] = 0  # 食草动物死亡
-                    else:
-                        grid[i][j] = 0
-                        grid[place[0]][place[1]] = 20  # 食草动物进食并移动
-                        growth = growAround(i, j, 0)
-                        if growth != [-1, -1]:
-                            grid[growth[0]][growth[1]] = 20  # 食草动物繁殖
-
-                elif grid[i][j] == 1:
-                    growth = growAround(i, j, 0)
-                    if growth != [-1, -1]:
-                        grid[growth[0]][growth[1]] = 10  # 草生长
-
-        fieldUpdate()
-
-        yield grid
-
-
-def update(_data):
-    ax.imshow(_data, interpolation='nearest', cmap='Set3', norm=norm)
-    return ax
-'''
-'''
-times = 100  # 迭代次数
-size = 40
-grid = np.zeros((size, size))  # 0代表空地
-addGrass(1200)
-addGrassEater(150)
-addMeatEater(30)
-
-fig = plt.figure()
-ax = plt.subplot(111)
-norm = matplotlib.colors.Normalize(vmin=0, vmax=3)  # 固定数值对应的颜色映射
-gci = ax.imshow(grid, interpolation='nearest', cmap='Set3', norm=norm)
-ax.set_xticks([])
-ax.set_yticks([])
-cbar = plt.colorbar(gci)
-cbar.set_ticks(np.linspace(0, 3, 4))
-cbar.set_ticklabels(('Space', 'Grass', 'GrassEater', 'MeatEater'))
-timesText = plt.text(-2, -2, 'times: 0')
-ani = animation.FuncAnimation(
-    fig, update, data_gen, interval=1000, repeat=False)
-
-plt.show()
-'''

@@ -11,7 +11,7 @@ class Food():
     self.pos = pos
     self.value = 100
     self.size = 2
-    self.color = (0,238,0)
+    self.color = (0,205,102)
     self.eaten = False
 
   def getPos(self):
