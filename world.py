@@ -142,7 +142,8 @@ class World():
             Sheep.move(self.target_food_pos)
             Sheep.eat()
             exec('del self.food_'+str(creatureXblock)+'_'+str(creatureYblock)+'[self.target_food]')
-            del self.food_d[self.target_food] 
+            del self.food_d[self.target_food]
+            
         else:
             Sheep.random_move((self.x_range,self.y_range))
             exec('del self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Sheep]')
@@ -175,6 +176,8 @@ class World():
           b = 'for Cow in self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_pos1 = self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Cow] \n  if self.dist > math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2)\n    self.target_prey = Cow\n    self.target_prey_pos = prey_pos1'
           exec(b)
         if self.dist < Tiger.size+5+self.climate: 
+            #if Tiger.health < 100 or Tiger.fertility < 40:
+            #Tiger.health -= self.dist*0.02
             self.tiger_d[Tiger] = self.target_prey_pos
             c0 = self.target_prey_pos[0]//12
             c1 = self.target_prey_pos[1]//12
@@ -188,8 +191,11 @@ class World():
             else:
               del self.sheep_d[self.target_prey]
               exec('del self.sheep_'+str(c0)+'_'+str(c1)+'[self.target_prey]')
+            
+
 
         else:
+            #Tiger.health -= (Tiger.size+5+self.climate)*0.02
             if self.dist != 999:
               pos_dif = [0,0]
               pos_dif[0] = self.target_prey_pos[0]-pos[0]
@@ -249,19 +255,19 @@ class World():
             del self.sheep_d[sheep]
           elif sheep.fertility > 0:
             sheep.life = sheep.life-1
-            for i in range(np.random.randint(0,3)):
-              p = Sheep(sheep.getPos(),sheep.speed+np.random.randint(-10,10))
-              pos = p.getPos()
-              self.sheep_d[p] = pos
-              creatureXblock=pos[0]//self.blocksize[0]
-              creatureYblock=pos[1]//self.blocksize[1]
-              exec('self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[p] = pos')
-              sheep.newIteration()
+            #for i in range(np.random.randint(0,3)):
+            p = Sheep(sheep.getPos(),sheep.speed+np.random.randint(-10,10))
+            pos = p.getPos()
+            self.sheep_d[p] = pos
+            creatureXblock=pos[0]//self.blocksize[0]
+            creatureYblock=pos[1]//self.blocksize[1]
+            exec('self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[p] = pos')
+            sheep.newIteration()
           else:
             sheep.life = sheep.life-1
     
     for tiger in list(self.tiger_d.keys()):
-          if tiger.health <100 or tiger.life <= 0:   
+          if tiger.health <120 or tiger.life <= 0:   
             pos=tiger.getPos()
             creatureXblock=pos[0]//self.blocksize[0]
             creatureYblock=pos[1]//self.blocksize[1]

@@ -21,7 +21,7 @@ class Tiger(Creature):
   def eat(self):                  
       
     if self.health<100 or self.fertility<70:
-        self.health+=60
+        self.health+=50
         self.fertility+=np.random.randint(10,20)
   
     else:
