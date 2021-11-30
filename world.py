@@ -172,6 +172,8 @@ class World():
         else:
           b = 'for Sheep in self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_s_pos1 = self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Sheep] \n  if self.dist > math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2)\n    self.target_prey = Sheep\n    self.target_prey_pos = prey_s_pos1'
           exec(b)
+          b = 'for Cow in self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_pos1 = self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Cow] \n  if self.dist > math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2)\n    self.target_prey = Cow\n    self.target_prey_pos = prey_pos1'
+          exec(b)
         if self.dist < Tiger.size+5+self.climate: 
             self.tiger_d[Tiger] = self.target_prey_pos
             c0 = self.target_prey_pos[0]//12
@@ -188,13 +190,33 @@ class World():
               exec('del self.sheep_'+str(c0)+'_'+str(c1)+'[self.target_prey]')
 
         else:
-            Tiger.random_move((self.x_range,self.y_range))
-            exec('del self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Tiger]')
-            pos=Tiger.getPos()
-            creatureXblock=pos[0]//self.blocksize[0]
-            creatureYblock=pos[1]//self.blocksize[1]
-            exec('self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Tiger] = pos')
-            self.tiger_d[Tiger] = pos
+            if self.dist != 999:
+              pos_dif = [0,0]
+              pos_dif[0] = self.target_prey_pos[0]-pos[0]
+              pos_dif[1] = self.target_prey_pos[1]-pos[1]
+              pos_dif_range =[0,0]
+              pos_dif_range[0] = pos_dif[0]/math.sqrt(pos_dif[0]**2+pos_dif[1]**2)
+              pos_dif_range[1] = pos_dif[1]/math.sqrt(pos_dif[0]**2+pos_dif[1]**2)
+              x = int(pos[0]+(Tiger.size+5+self.climate)*pos_dif_range[0])
+              y = int(pos[1]+(Tiger.size+5+self.climate)*pos_dif_range[1])
+              if x<=600 and x>=0 and y<=600 and y>=0:
+                self.tiger_d[Tiger] = [x,y]
+                c0 = x//12
+                c1 = y//12
+                exec('del self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Tiger]')
+                exec('self.tiger_'+str(c0)+'_'+str(c1)+'[Tiger] = [x,y]')
+                Tiger.move([x,y])
+              else:
+                self.dist = 999
+
+            if self.dist == 999:
+              Tiger.random_move((self.x_range,self.y_range))
+              exec('del self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Tiger]')
+              pos=Tiger.getPos()
+              creatureXblock=pos[0]//self.blocksize[0]
+              creatureYblock=pos[1]//self.blocksize[1]
+              exec('self.tiger_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Tiger] = pos')
+              self.tiger_d[Tiger] = pos
 
   # Determine the survival and reproduction of creature.
   def reset_creatures(self):
