@@ -193,10 +193,12 @@ while True:
     Sheep_num = []
     food_num = []
     day_num = []
+    growthrate = 1
 
     #Start loop for one day
     for day in range(0,number_of_days):
         steps_taken = 0
+        number_of_food = number_of_food-day*50*(growthrate-1)
         #Generate forest, which is the center of glass distribution.
         forest_epicenters = world.generate_food(number_of_food,len(forest_epicenters),forest_epicenters)
         canvas_2.fill((255,255,255))
