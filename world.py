@@ -435,8 +435,7 @@ class World():
                 prey.sensitive_move((self.x_range,self.y_range),direct)
                 
                 t = prey.getPos()
-                if t[0] > 600:
-                  print(1)
+
               else:
                 prey.random_move((self.x_range,self.y_range))
 
@@ -489,8 +488,8 @@ class World():
           direct = direct.cpu().numpy()
         else:
           direct = np.array([0,0])
-        a = 'for prey in self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_pos1 = self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey] \n  print(prey_pos1)\n  if self.dist > math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2)\n    self.target_prey = prey\n    self.target_prey_pos = prey_pos1'
-        b = 'for Sheep in self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_s_pos1 = self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Sheep] \n  print(prey_s_pos1)\n  if self.dist > math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2)\n    self.target_prey = Sheep\n    self.target_prey_pos = prey_s_pos1'
+        a = 'for prey in self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_pos1 = self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey] \n  if self.dist > math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_pos1[0]-pos[0])**2+(prey_pos1[1]-pos[1])**2)\n    self.target_prey = prey\n    self.target_prey_pos = prey_pos1'
+        b = 'for Sheep in self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+': \n  prey_s_pos1 = self.sheep_'+str(creatureXblock)+'_'+str(creatureYblock)+'[Sheep] \n  if self.dist > math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2): \n    self.dist = math.sqrt((prey_s_pos1[0]-pos[0])**2+(prey_s_pos1[1]-pos[1])**2)\n    self.target_prey = Sheep\n    self.target_prey_pos = prey_s_pos1'
         
         exec(a)
         exec(b)
