@@ -470,7 +470,7 @@ class World():
         
         
         exec('self.cow_'+str(creatureXblock)+'_'+str(creatureYblock)+'[prey] = pos')
-        if len(self.cow_d != 1):self.cow_d[prey] = pos
+        if len(self.cow_d) != 1 :self.cow_d[prey] = pos
       
     if len(D_predator[0]) >=1 and len(D_prey[0]) >=2:
       for i, predator in enumerate(self.tiger_d.keys()):
